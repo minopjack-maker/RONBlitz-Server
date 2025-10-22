@@ -58,7 +58,17 @@ namespace RONBlitz.Server.Controllers
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             var userResponse = await _httpClient.GetStringAsync("https://discord.com/api/users/@me");
-            return Content(userResponse, "application/json");
+
+            // take the JSON from Discord and encode it safely for the URL
+            var encodedUser = Uri.EscapeDataString(
+                Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(userResponse))
+            );
+
+            // point this to your actual frontend site
+            var frontendUrl = $"https://ronblitz.netlify.app/auth/callback?user={encodedUser}";
+
+            return Redirect(frontendUrl);
+
         }
 
         // ✅ Add this endpoint
