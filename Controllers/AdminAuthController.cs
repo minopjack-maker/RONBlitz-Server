@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -60,7 +61,7 @@ namespace RONBlitz.Server.Controllers
 
         private string GenerateJwtToken(string username)
         {
-            var key = _config["Jwt:Key"] ?? "X3!vPz81LmAq47$Rf9KdB2@tYnHjQ5uC"; // 🔒 256-bit key (secure)
+            var key = _config["Jwt:Key"] ?? throw new InvalidOperationException("Missing JWT key configuration.");
             var creds = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                 SecurityAlgorithms.HmacSha256);

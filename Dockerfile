@@ -1,20 +1,23 @@
-# Use the official .NET SDK image to build and run
+# Stage 1 — Build the app
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /app
+WORKDIR /src
 
-# Copy everything
+# Copy everything and restore dependencies
 COPY . .
+RUN dotnet restore "RONBlitz.Server.csproj"
 
-# Restore and publish the app
-RUN dotnet restore
-RUN dotnet publish -c Release -o out
+# Build and publish directly to /app/out
+RUN dotnet publish "RONBlitz.Server.csproj" -c Release -o /app/out
 
-# Use the ASP.NET runtime image for the final container
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+# Stage 2 — Runtime container
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
 WORKDIR /app
+
+# Copy published output from the build stage
 COPY --from=build /app/out .
 
-# Expose port 8080 (Render uses this)
+# Expose Render’s default port
+ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
 # Run the app
