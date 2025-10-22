@@ -1,0 +1,54 @@
+# === .NET / ASP.NET Core ===
+bin/
+obj/
+publish/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+*.user
+*.db
+*.db-shm
+*.db-wal
+
+# Ignore build artifacts
+*.vspscc
+*.vssscc
+*.vshost.*
+
+# === Configuration & Secrets ===
+appsettings*.json
+*.env
+secrets.json
+
+# === OS Files ===
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# === Visual Studio ===
+.vs/
+*.suo
+*.userosscache
+*.userprefs
+
+# === IDEs ===
+.idea/
+.vscode/
+*.code-workspace
+
+# === Containers / Deployment ===
+Dockerfile
+docker-compose*.yml
+*.tar
+
+# === Misc ===
+node_modules/
+dist/
