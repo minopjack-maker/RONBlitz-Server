@@ -45,7 +45,6 @@ Desktop.ini
 *.code-workspace
 
 # === Containers / Deployment ===
-Dockerfile
 docker-compose*.yml
 *.tar
 
