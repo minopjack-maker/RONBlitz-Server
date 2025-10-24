@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 
 namespace RONBlitz.Server.Controllers
 {
@@ -24,11 +23,12 @@ namespace RONBlitz.Server.Controllers
             var clientId = _config["Discord:ClientId"];
             var redirectUri = _config["Discord:RedirectUri"];
 
-            var discordAuthUrl = $"https://discord.com/oauth2/authorize" +
-                                 $"?client_id={clientId}" +
-                                 $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
-                                 $"&response_type=code" +
-                                 $"&scope=identify";
+            var discordAuthUrl =
+                $"https://discord.com/oauth2/authorize" +
+                $"?client_id={clientId}" +
+                $"&redirect_uri={Uri.EscapeDataString(redirectUri)}" +
+                $"&response_type=code" +
+                $"&scope=identify";
 
             return Redirect(discordAuthUrl);
         }
@@ -40,7 +40,8 @@ namespace RONBlitz.Server.Controllers
             var clientSecret = _config["Discord:ClientSecret"];
             var redirectUri = _config["Discord:RedirectUri"];
 
-            var tokenResponse = await _httpClient.PostAsync("https://discord.com/api/oauth2/token",
+            var tokenResponse = await _httpClient.PostAsync(
+                "https://discord.com/api/oauth2/token",
                 new FormUrlEncodedContent(new Dictionary<string, string>
                 {
                     ["client_id"] = clientId!,
@@ -48,30 +49,29 @@ namespace RONBlitz.Server.Controllers
                     ["grant_type"] = "authorization_code",
                     ["code"] = code,
                     ["redirect_uri"] = redirectUri!
-                }));
+                })
+            );
 
-            var tokenData = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync()).RootElement;
+            var responseContent = await tokenResponse.Content.ReadAsStringAsync();
+            var tokenData = JsonDocument.Parse(responseContent).RootElement;
+
             if (!tokenData.TryGetProperty("access_token", out var accessTokenElement))
                 return BadRequest("Failed to obtain Discord access token.");
 
             var accessToken = accessTokenElement.GetString();
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", accessToken);
 
             var userResponse = await _httpClient.GetStringAsync("https://discord.com/api/users/@me");
 
-            // take the JSON from Discord and encode it safely for the URL
             var encodedUser = Uri.EscapeDataString(
                 Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(userResponse))
             );
 
-            // point this to your actual frontend site
             var frontendUrl = $"https://ronblitz.netlify.app/auth/callback?user={encodedUser}";
-
             return Redirect(frontendUrl);
-
         }
 
-        // ✅ Add this endpoint
         [HttpGet("me")]
         public IActionResult GetCurrentUser()
         {
