@@ -9,7 +9,7 @@ namespace RONBlitz.Server.Controllers
     [Route("api/[controller]")]
     public class ScoresController : ControllerBase
     {
-        // ✅ Temporary in-memory scores (can be replaced later with DB)
+        // Temporary in-memory leaderboard (replace with database later)
         private static readonly List<ScoreEntry> Scores = new()
         {
             new() { Player = "Omen", Score = 1200 },
@@ -17,44 +17,45 @@ namespace RONBlitz.Server.Controllers
             new() { Player = "Noah", Score = 880 }
         };
 
-        // 🌍 Public - Anyone can view
         [HttpGet]
-        [AllowAnonymous] // ✅ Public access for viewing scores
+        [AllowAnonymous]
         public IActionResult GetScores()
         {
             return Ok(Scores.OrderByDescending(s => s.Score));
         }
 
-        // 🔒 Admin-only - requires JWT token
         [Authorize]
         [HttpPost]
         public IActionResult AddScore([FromBody] ScoreEntry entry)
         {
             if (string.IsNullOrWhiteSpace(entry.Player))
-                return BadRequest("Player name required.");
+                return BadRequest("Player name is required.");
 
             var existing = Scores.FirstOrDefault(s => s.Player == entry.Player);
             if (existing != null)
+            {
                 existing.Score = entry.Score;
+            }
             else
+            {
                 Scores.Add(entry);
+            }
 
-            return Ok(new { message = "Score added/updated ✅", Scores });
+            return Ok(new { message = "Score added or updated successfully.", Scores });
         }
 
-        // 🔒 Admin-only - remove player score
         [Authorize]
         [HttpDelete("{player}")]
         public IActionResult DeleteScore(string player)
         {
-            var existing = Scores.FirstOrDefault(s => 
-                s.Player.Equals(player, StringComparison.OrdinalIgnoreCase));
+            var existing = Scores.FirstOrDefault(
+                s => s.Player.Equals(player, StringComparison.OrdinalIgnoreCase));
 
             if (existing == null)
-                return NotFound($"No score found for {player}.");
+                return NotFound($"No score found for '{player}'.");
 
             Scores.Remove(existing);
-            return Ok(new { message = $"Removed {player} from leaderboard ❌", Scores });
+            return Ok(new { message = $"Removed {player} from leaderboard.", Scores });
         }
     }
 
