@@ -8,7 +8,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
-// JWT secret key (should be stored securely in environment variables)
+// JWT secret key
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "A9$kd02!fJz83nLpVxR5qT7uHmYcWbZ4";
 
 // Services
