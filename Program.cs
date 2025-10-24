@@ -8,17 +8,17 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
-// --- JWT Secret Key (⚠️ consider moving to environment variable later)
-// --- JWT Secret Key (⚠️ Must be at least 256 bits)
+// JWT secret key (should be stored securely in environment variables)
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "A9$kd02!fJz83nLpVxR5qT7uHmYcWbZ4";
 
-// --- Add Services ---
+// Services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=ronblitz.db"));
+
 builder.Services.AddScoped<PlayerScoresService>();
 
 builder.Services.AddCors(options =>
@@ -52,18 +52,18 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// --- Middleware ---
+// Middleware
 app.UseCors("AllowClient");
-// app.UseHttpsRedirection(); // ❌ disable for Render
 app.UseAuthentication();
 app.UseAuthorization();
 
+// API endpoints
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
 app.MapControllers();
-app.MapGet("/", () => Results.Ok("✅ RONBlitz Server is running online"));
+app.MapGet("/", () => Results.Ok("RONBlitz Server is running online"));
 
 app.Run();
